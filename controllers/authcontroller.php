@@ -1,34 +1,65 @@
 <?php
+require_once __DIR__ . '/../includes/Auth.php';
 
-require_once __DIR__."/../models/auth.php";
-class authcontroller {
-    public function login(){
+class AuthController {
 
-    if($_POST){
-  $model=new auth();
-  $login=$model->login($_POST['usuario'],$_POST['clave']);
-   
-  if($login){
-    $_SESSION['user']=$login['nombre'];
-    $_SESSION['rol']=$login['rol'];
-    if()
-    
-    header("location: index.php?controller=cliente&action=index");
-    exit;
-  }else{
-    echo"no se encontro el usuario";
-  }
+    public function login() {
+        if (Auth::estaAutenticado()) {
+            $this->redirigirPorRol();
+            return;
+        }
+
+        $error = '';
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $auth   = new Auth();
+            $result = $auth->login($_POST['correo'] ?? '', $_POST['password'] ?? '');
+            if ($result['success']) {
+                $this->redirigirPorRol();
+                return;
+            }
+            $error = $result['error'];
+        }
+
+        require_once __DIR__ . '/../views/auth/login.php';
     }
-      require_once __DIR__. "/../views/auth/login.php";
+
+    public function registro() {
+        if (Auth::estaAutenticado()) {
+            $this->redirigirPorRol();
+            return;
+        }
+
+        $error   = '';
+        $success = '';
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $auth   = new Auth();
+            $result = $auth->register($_POST);
+            if ($result['success']) {
+                $success = 'Registro exitoso. Ya puedes iniciar sesión.';
+            } else {
+                $error = implode('<br>', $result['errors']);
+            }
+        }
+
+        require_once __DIR__ . '/../views/auth/registro.php';
     }
 
-    
-    public function logout(){   
-        session_destroy();
-        header("Location: index.php");
-    }   
+    public function logout() {
+        Auth::logout();
+        header('Location: index.php?controller=auth&action=login');
+        exit;
+    }
 
-    public function admin(){
-      require_once __DIR__."/../views/admin/admin.php"
+    private function redirigirPorRol() {
+        $rol = Auth::usuarioActual()['rol'] ?? '';
+        switch ($rol) {
+            case 'admin':
+                header('Location: index.php?controller=admin&action=dashboard'); break;
+            case 'empleado':
+                header('Location: index.php?controller=empleado&action=index'); break;
+            default:
+                header('Location: index.php?controller=cliente&action=index'); break;
+        }
+        exit;
     }
 }

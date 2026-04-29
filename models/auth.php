@@ -9,7 +9,7 @@ class auth{
     public function login($nombres,$pass){
         
         $sql="SELECT*from rol INNER JOIN rol_user ON rol.id_rol=rol_user.id_rol_user INNER JOIN 
-        cliente ON rol_user.id_cliente = cliente.id_cliente WHERE nombre='$nombre' AND pass='$pass';'";
+        cliente ON rol_user.id_cliente = cliente.id_cliente WHERE nombre='$nombres' AND pass='$pass'";
  
         $resul=$this->db->query($sql);
 
