@@ -115,6 +115,4 @@ http://localhost/MVC_PRUEBA/index.php
 - **Frontend**: HTML5 + CSS3 vanilla (sin librerías externas)
 - **Autenticación**: Sesiones PHP + password_hash/verify
 
----
-
-Basado en la estructura de **El Roble** con los datos y diseño de **Glamour Stock**.
+---**.
